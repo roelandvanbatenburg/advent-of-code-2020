@@ -1,0 +1,3 @@
+%{
+  "ex_check": {:hex, :ex_check, "0.12.0", "c0e2919ecc06afeaf62c52d64f3d91bd4bc7dd8deaac5f84becb6278888c967a", [:mix], [], "hexpm", "cfafa8ef97c2596d45a1f19b5794cb5c7f700f25d164d3c9f8d7ec17ee67cf42"}
+}
