@@ -4,21 +4,14 @@ See https://adventofcode.com/
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `advent_2020` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:advent_2020, "~> 0.1.0"}
-  ]
-end
+```sh
+asdf install
+mix local.rebar
+mix local.hex
+mix deps.get
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/advent_2020](https://hexdocs.pm/advent_2020).
 
 ## Usage
 
-- **TODO**
+- Tests: `mix check`
+- Day 01: `report_repair 3 input.txt`
