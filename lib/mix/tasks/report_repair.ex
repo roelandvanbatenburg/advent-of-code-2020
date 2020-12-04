@@ -9,8 +9,8 @@ defmodule Mix.Tasks.ReportRepair do
 
   ## Example
 
-  mix report_repair 2 input.txt
-  mix report_repair 3 input.txt
+  mix report_repair 2 priv/input_01.txt
+  mix report_repair 3 priv/input_01.txt
   """
 
   def run(["2", input_file]) do
