@@ -10,7 +10,6 @@ defmodule Mix.Tasks.PasswordPhilosophy do
 
   means that abcde is valid as it has 1-3 a's.
 
-
   ## Example
 
   mix password_philosophy
@@ -19,6 +18,13 @@ defmodule Mix.Tasks.PasswordPhilosophy do
   def run([]) do
     File.stream!("priv/input_02.txt")
     |> PasswordPhilosophy.run()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--weird"]) do
+    File.stream!("priv/input_02.txt")
+    |> PasswordPhilosophy.run(:weird)
     |> Integer.to_string()
     |> Mix.shell().info()
   end
