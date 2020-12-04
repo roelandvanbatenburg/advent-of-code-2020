@@ -4,6 +4,11 @@ image: elixir:1.10.4-alpine
 default:
   interruptible: true
 
+cache:
+  key: ${CI_PROJECT_NAME}
+  paths:
+    - _build/plt/
+
 mix:
   script:
     - mix local.rebar --force

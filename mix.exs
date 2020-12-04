@@ -4,6 +4,10 @@ defmodule Advent2020.MixProject do
   def project do
     [
       app: :advent_2020,
+      dialyzer: [
+        plt_add_apps: [:mix],
+        plt_file: {:no_warn, "_build/plt/dialyzer.plt"}
+      ],
       version: "0.1.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
@@ -19,7 +23,10 @@ defmodule Advent2020.MixProject do
 
   defp deps do
     [
-      {:ex_check, "~> 0.12.0", only: [:dev, :test], runtime: false}
+      {:ex_check, "~> 0.12.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.23", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
