@@ -24,7 +24,7 @@ defmodule TobogganTrajectory.Grid do
   def double(grid, x) do
     width = length(List.first(grid))
 
-    if(width < x) do
+    if width < x do
       grid
       |> Enum.map(fn line -> Enum.concat(line, line) end)
     else
