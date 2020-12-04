@@ -5,36 +5,31 @@ defmodule TobogganTrajectory do
 
   alias TobogganTrajectory.Grid
 
-  def run(raw_grid) do
+  def run(raw_grid, slope \\ [3, 1]) do
     raw_grid
     |> Grid.parse()
-    |> step([0, 0], 0, false)
+    |> step(slope)
   end
 
-  @spec step(Grid.grid(), [integer | integer], integer, boolean) :: integer
+  @spec step(Grid.grid(), [integer | integer], [integer | integer], integer) :: integer
+  defp step(grid, slope, position \\ [0, 0], trees \\ 0)
 
-  defp step(grid, [x, y], trees, false) do
-    IO.puts("#{x} #{y} #{trees}")
+  defp step(grid, [slope_x, slope_y] = slope, [x, y], trees) do
     height = length(grid)
-
     # we reached the end
-    if y + 1 == height do
-      step(grid, [x, y], trees, true)
+    if y + slope_y >= height do
+      trees
     else
       # double if we need to explore more
-      grid = Grid.double(grid, x + 3)
+      grid = Grid.double(grid, x + slope_x)
 
-      new_position = [x + 3, y + 1]
+      new_position = [x + slope_x, y + slope_y]
 
       if Grid.tree?(grid, new_position) do
-        step(grid, new_position, trees + 1, false)
+        step(grid, slope, new_position, trees + 1)
       else
-        step(grid, new_position, trees, false)
+        step(grid, slope, new_position, trees)
       end
     end
-  end
-
-  defp step(_grid, _position, trees, true) do
-    trees
   end
 end
