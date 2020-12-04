@@ -20,6 +20,7 @@ defmodule Advent2020.MixProject do
   defp deps do
     [
       {:ex_check, "~> 0.12.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.23", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end
