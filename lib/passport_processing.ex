@@ -32,5 +32,4 @@ defmodule PassportProcessing do
     [key, value] = String.split(input, ":")
     {String.to_atom(key), value}
   end
-
 end

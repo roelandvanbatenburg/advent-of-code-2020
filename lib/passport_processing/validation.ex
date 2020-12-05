@@ -1,4 +1,8 @@
 defmodule PassportProcessing.Validation do
+  @moduledoc """
+  Validation of passports
+  """
+
   @required_keys [:byr, :iyr, :eyr, :hgt, :hcl, :ecl, :pid]
 
   @spec is_valid?(map(), boolean) :: boolean

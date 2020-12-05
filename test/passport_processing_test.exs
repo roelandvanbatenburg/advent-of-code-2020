@@ -63,19 +63,17 @@ defmodule PassportProcessingTest do
   end
 
   describe "validation" do
-
     setup _context do
       {:ok,
        base: %{
-        byr: "2002",
-        iyr: "2010",
-        eyr: "2030",
-        hgt: "60in",
-        hcl: "#123abc",
-        ecl: "brn",
-        pid: "000000001"
-       }
-      }
+         byr: "2002",
+         iyr: "2010",
+         eyr: "2030",
+         hgt: "60in",
+         hcl: "#123abc",
+         ecl: "brn",
+         pid: "000000001"
+       }}
     end
 
     test "base", %{base: base} do
