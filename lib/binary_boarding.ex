@@ -3,12 +3,15 @@ defmodule BinaryBoarding do
   Handling binary boarding tickets
   """
 
-  @spec parse(<<_::80>>) :: {non_neg_integer, non_neg_integer}
-  def parse(<<row::binary-size(7), column::binary-size(3)>>) do
+  @spec seat_id(<<_::80>>) :: number
+
+  def seat_id(input), do: input |> parse() |> id
+
+  defp parse(<<row::binary-size(7), column::binary-size(3)>>) do
     {parse_row(row), parse_column(column)}
   end
 
-  def id({column, row}), do: column * 8 + row
+  defp id({column, row}), do: column * 8 + row
 
   defp parse_row(<<"F", rest::binary>>), do: 0 + parse_row(rest)
   defp parse_row(<<"B", rest::binary-size(6)>>), do: 64 + parse_row(rest)
