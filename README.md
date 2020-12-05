@@ -18,4 +18,4 @@ mix deps.get
 - Day 02: `mix password_philosophy` (`--weird` for part 2)
 - Day 03: `mix toboggan_trajectory` (`--multiple` for part 2)
 - Day 04: `mix passport_processing` (`--strict` for part 2)
-- Day 05: `mix binary_boarding`
+- Day 05: `mix binary_boarding` (`--empty` for part 2)
