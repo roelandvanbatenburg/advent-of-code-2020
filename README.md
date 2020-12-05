@@ -17,3 +17,4 @@ mix deps.get
 - Day 01: `mix report_repair 3 priv/input_01.txt`
 - Day 02: `mix password_philosophy` (`--weird` for part 2)
 - Day 03: `mix toboggan_trajectory` (`--multiple` for part 2)
+- Day 04: `mix passport_processing` (`--strict` for part 2)
