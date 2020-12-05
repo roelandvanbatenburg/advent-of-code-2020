@@ -3,10 +3,13 @@ defmodule PassportProcessing do
   Find the number of valid passports
   """
 
-  def run(input) do
+  alias PassportProcessing.Validation
+
+  @spec run(list(String.t()), boolean) :: integer
+  def run(input, strict \\ false) do
     input
     |> parse_to_passports
-    |> Enum.filter(&is_valid/1)
+    |> Enum.filter(&Validation.is_valid?(&1, strict))
     |> length()
   end
 
@@ -30,9 +33,4 @@ defmodule PassportProcessing do
     {String.to_atom(key), value}
   end
 
-  @required_keys [:byr, :iyr, :eyr, :hgt, :hcl, :ecl, :pid]
-
-  defp is_valid(passport) do
-    Enum.all?(@required_keys, &Map.has_key?(passport, &1))
-  end
 end
