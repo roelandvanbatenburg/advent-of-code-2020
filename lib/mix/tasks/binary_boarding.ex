@@ -14,8 +14,7 @@ defmodule Mix.Tasks.BinaryBoarding do
   def run([]) do
     File.stream!("priv/input_05.txt")
     |> Stream.map(&String.trim_trailing/1)
-    |> Stream.map(&BinaryBoarding.parse/1)
-    |> Stream.map(&BinaryBoarding.id/1)
+    |> Stream.map(&BinaryBoarding.seat_id/1)
     |> Enum.to_list()
     |> Enum.max()
     |> Integer.to_string()
@@ -26,8 +25,7 @@ defmodule Mix.Tasks.BinaryBoarding do
     seat_ids =
       File.stream!("priv/input_05.txt")
       |> Stream.map(&String.trim_trailing/1)
-      |> Stream.map(&BinaryBoarding.parse/1)
-      |> Stream.map(&BinaryBoarding.id/1)
+      |> Stream.map(&BinaryBoarding.seat_id/1)
       |> Enum.to_list()
 
     min = Enum.min(seat_ids)
