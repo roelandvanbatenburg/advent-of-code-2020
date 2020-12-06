@@ -12,25 +12,20 @@ defmodule Mix.Tasks.CustomCustoms do
   """
 
   def run([]) do
-    File.stream!("priv/input_06.txt")
-    |> Stream.map(&String.trim_trailing/1)
-    |> Enum.to_list()
-    |> Enum.join("\n")
-    |> String.split("\n\n")
-    |> Enum.map(&get_unique/1)
-    |> Enum.map(&length/1)
-    |> Enum.sum()
-    |> Integer.to_string()
-    |> Mix.shell().info()
+    print_sum(&get_unique/1)
   end
 
   def run(["--shared"]) do
+    print_sum(&get_shared/1)
+  end
+
+  def print_sum(count_fun) do
     File.stream!("priv/input_06.txt")
     |> Stream.map(&String.trim_trailing/1)
     |> Enum.to_list()
     |> Enum.join("\n")
     |> String.split("\n\n")
-    |> Enum.map(&get_shared/1)
+    |> Enum.map(count_fun)
     |> Enum.map(&length/1)
     |> Enum.sum()
     |> Integer.to_string()
