@@ -8,8 +8,7 @@ defmodule HandyHaversacks do
     input
     |> Enum.map(&parse_to_rule/1)
     |> Map.new()
-    |> IO.inspect()
-    |> find_gold
+    |> find_gold()
   end
 
   @spec number_of_bags_in_gold(list(String.t())) :: number
