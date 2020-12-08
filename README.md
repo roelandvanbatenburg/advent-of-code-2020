@@ -21,4 +21,4 @@ mix deps.get
 - Day 05: `mix binary_boarding` (`--empty` for part 2)
 - Day 06: `mix custom_customs` (`--shared` for part 2)
 - Day 07: `mix handy_haversacks` (`--size` for part 2)
-- Day 08: `mix handheld_halting`
+- Day 08: `mix handheld_halting` (`--solve` for part 2)

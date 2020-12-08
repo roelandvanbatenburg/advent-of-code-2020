@@ -19,4 +19,8 @@ defmodule HandheldHaltingTest do
   test "correctly determine output", %{input: input} do
     assert 5 == HandheldHalting.run(input)
   end
+
+  test "correctly solves", %{input: input} do
+    assert 8 = HandheldHalting.solve(input)
+  end
 end

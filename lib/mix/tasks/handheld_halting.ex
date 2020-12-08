@@ -19,4 +19,13 @@ defmodule Mix.Tasks.HandheldHalting do
     |> Integer.to_string()
     |> Mix.shell().info()
   end
+
+  def run(["--solve"]) do
+    File.stream!("priv/input_08.txt")
+    |> Stream.map(&String.trim_trailing/1)
+    |> Enum.to_list()
+    |> HandheldHalting.solve()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
 end
