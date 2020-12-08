@@ -7,6 +7,8 @@ default:
 cache:
   key: ${CI_PROJECT_NAME}
   paths:
+    - deps/
+    - _build/
     - _build/plt/
 
 mix:
