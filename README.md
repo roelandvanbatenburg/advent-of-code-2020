@@ -22,4 +22,4 @@ mix deps.get
 - Day 06: `mix custom_customs` (`--shared` for part 2)
 - Day 07: `mix handy_haversacks` (`--size` for part 2)
 - Day 08: `mix handheld_halting` (`--solve` for part 2)
-- Day 09: `mix encoding_error`
+- Day 09: `mix encoding_error` (`--solve` for part 2)

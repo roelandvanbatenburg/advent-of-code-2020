@@ -8,7 +8,7 @@ defmodule Mix.Tasks.EncodingError do
 
   ## Example
 
-  mix encoding_error
+  mix encoding_error (--solve)
   """
 
   def run([]) do
@@ -17,6 +17,21 @@ defmodule Mix.Tasks.EncodingError do
     |> Stream.map(&String.to_integer/1)
     |> Enum.to_list()
     |> EncodingError.find_first_non_valid()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--solve"]) do
+    input =
+      File.stream!("priv/input_09.txt")
+      |> Stream.map(&String.trim_trailing/1)
+      |> Stream.map(&String.to_integer/1)
+      |> Enum.to_list()
+
+    input
+    |> EncodingError.find_first_non_valid()
+    |> EncodingError.find_contiguous_set(input)
+    |> Enum.sum()
     |> Integer.to_string()
     |> Mix.shell().info()
   end

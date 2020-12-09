@@ -12,4 +12,9 @@ defmodule EncodingErrorTest do
     input = [35, 20, 15, 25, 47, 40, 62, 55, 65, 95, 102, 117, 150, 182, 127]
     assert 127 == EncodingError.find_first_non_valid(input, 5)
   end
+
+  test "find min and max of contiguous set" do
+    input = [35, 20, 15, 25, 47, 40, 62, 55, 65, 95, 102, 117, 150, 182, 127]
+    assert [15, 47] == EncodingError.find_contiguous_set(127, input)
+  end
 end
