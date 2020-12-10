@@ -23,38 +23,46 @@ defmodule AdapterArray do
     device_jolt = Enum.max(input) + 3
 
     # add 0 as starting point
-    [0 | input]
+    ([0 | input] ++ [device_jolt])
     |> Enum.sort()
-    |> count_solutions(0, 0, device_jolt)
+    |> to_sequence_sizes()
+    |> to_weights()
+    |> to_solution_count()
   end
 
-  defp count_solutions(adapters, index, previous, target) do
-    adapter_cnt = length(adapters)
-    current = Enum.at(adapters, index)
+  defp to_sequence_sizes(adapters) do
+    {sequence_sizes, _} =
+      1..length(adapters)
+      |> Enum.reduce({[0], 1}, fn index, {sequence_sizes, current_size} ->
+        cur = Enum.at(adapters, index)
+        prv = Enum.at(adapters, index - 1)
 
-    if index >= adapter_cnt || current - previous > 3 do
-      # out of range or step too big
-      0
-    else
-      if index == adapter_cnt - 1 do
-        if target - current > 3 do
-          # no solution found
-          0
+        if cur == prv + 1 do
+          {sequence_sizes, current_size + 1}
         else
-          1
+          {[current_size | sequence_sizes], 1}
         end
+      end)
+
+    sequence_sizes
+  end
+
+  defp to_weights(sequence_sizes) do
+    sequence_sizes
+    |> Enum.filter(fn size -> size > 2 end)
+    |> Enum.map(fn size ->
+      options = size - 2
+
+      if options == 1 do
+        2
       else
-        if target - current <= 3 do
-          # special case where this is a solution, but there might be more
-          1
-        else
-          0
-        end
-
-        +count_solutions(adapters, index + 1, current, target) +
-          count_solutions(adapters, index + 2, current, target) +
-          count_solutions(adapters, index + 3, current, target)
+        (1 + 3 * :math.pow(2, options - 2)) |> round
       end
-    end
+    end)
+  end
+
+  defp to_solution_count(weights) do
+    weights
+    |> Enum.reduce(fn weight, acc -> weight * acc end)
   end
 end
