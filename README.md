@@ -23,3 +23,6 @@ mix deps.get
 - Day 07: `mix handy_haversacks` (`--size` for part 2)
 - Day 08: `mix handheld_halting` (`--solve` for part 2)
 - Day 09: `mix encoding_error` (`--solve` for part 2)
+- Day 10: `mix adapter_array` (`--count` for part 2)
+- Day 11: `mix seating_systems` (`--part2` for part 2)
+- Day 12: `mix encoding_error` (`--part2` for part 2)

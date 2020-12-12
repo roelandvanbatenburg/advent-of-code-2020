@@ -1,6 +1,8 @@
 defmodule RainRiskTest do
   use ExUnit.Case
 
+  alias RainRisk.{PartOne, PartTwo}
+
   setup _context do
     {:ok,
      input: [
@@ -12,10 +14,11 @@ defmodule RainRiskTest do
      ]}
   end
 
-  test "follow the instructions", %{input: input} do
-    assert 25 ==
-             input
-             |> RainRisk.follow_instructions()
-             |> RainRisk.manhattan_distance()
+  test "follow the instructions part one", %{input: input} do
+    assert 25 == input |> PartOne.follow_instructions() |> RainRisk.manhattan_distance()
+  end
+
+  test "follow the instructions part two", %{input: input} do
+    assert 286 == input |> PartTwo.follow_instructions() |> RainRisk.manhattan_distance()
   end
 end

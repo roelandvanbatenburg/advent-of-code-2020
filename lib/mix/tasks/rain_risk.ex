@@ -11,11 +11,23 @@ defmodule Mix.Tasks.RainRisk do
   mix rain_disk
   """
 
+  alias RainRisk.{PartOne, PartTwo}
+
   def run([]) do
     File.stream!("priv/input_12.txt")
     |> Stream.map(&String.trim_trailing/1)
     |> Enum.to_list()
-    |> RainRisk.follow_instructions()
+    |> PartOne.follow_instructions()
+    |> RainRisk.manhattan_distance()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--part2"]) do
+    File.stream!("priv/input_12.txt")
+    |> Stream.map(&String.trim_trailing/1)
+    |> Enum.to_list()
+    |> PartTwo.follow_instructions()
     |> RainRisk.manhattan_distance()
     |> Integer.to_string()
     |> Mix.shell().info()
