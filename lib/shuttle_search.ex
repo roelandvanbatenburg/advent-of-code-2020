@@ -44,31 +44,50 @@ defmodule ShuttleSearch do
       |> Enum.to_list()
     end
 
-    def find_subsequent(busses) do
-      busses
-      |> Enum.reduce([], fn {position, bus_id}, acc ->
-        acc
-        |> IO.inspect()
-        |> Enum.concat(factors_for(bus_id + position))
-        |> IO.inspect()
-        |> Enum.uniq()
-        |> IO.inspect()
-      end)
-      |> Enum.reduce(fn factor, product -> product * factor end)
+    def find_subsequent([{position_a, bus_id_a} | [{position_b, bus_id_b} | rest]]) do
+      {timestamp, _product} =
+        find_pair({position_a, bus_id_a, 1}, {position_b, bus_id_b, 1})
+        |> find_subsequent(rest)
+
+      timestamp
     end
 
-    @spec factors_for(pos_integer) :: [pos_integer]
-    def factors_for(number) do
-      number |> f |> Enum.reverse()
+    def find_subsequent({t, product}, [{position_a, bus_id_a} | rest]) do
+      find_next({product, t, 1}, {position_a, bus_id_a, 1})
+      |> find_subsequent(rest)
     end
 
-    def f(a, test \\ 2, acc \\ [])
-    def f(1, _, acc), do: acc
+    def find_subsequent(t, []), do: t
 
-    def f(number, test, acc) when rem(number, test) == 0,
-      do: f(div(number, test), test, [test | acc])
+    def find_pair({pos_a, id_a, factor_a}, {pos_b, id_b, factor_b}) do
+      a = factor_a * id_a - pos_a
+      b = factor_b * id_b - pos_b
 
-    def f(number, test, acc), do: f(number, test + 1, acc)
+      if a == b do
+        {a, id_a * id_b}
+      else
+        if a > b do
+          find_pair({pos_a, id_a, factor_a}, {pos_b, id_b, factor_b + 1})
+        else
+          find_pair({pos_a, id_a, factor_a + 1}, {pos_b, id_b, factor_b})
+        end
+      end
+    end
+
+    def find_next({product, timestamp, factor_a} = a_in, {pos, id, factor} = b_in) do
+      a = timestamp + product * factor_a
+      b = factor * id - pos
+
+      if a == b do
+        {a, product * id}
+      else
+        if a > b do
+          find_next(a_in, {pos, id, factor + 1})
+        else
+          find_next({product, timestamp, factor_a + 1}, b_in)
+        end
+      end
+    end
 
     defp parse_bus_id("x"), do: nil
     defp parse_bus_id(id), do: String.to_integer(id)
