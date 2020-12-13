@@ -40,24 +40,26 @@ defmodule ShuttleSearch do
 
       busses
       |> Enum.filter(fn {_position, bus_id} -> bus_id != nil end)
-      |> Enum.sort(fn {_position_a, bus_id_a}, {_position_b, bus_id_b} -> bus_id_a > bus_id_b end)
+      |> Enum.sort(fn {_position_a, bus_id_a}, {_position_b, bus_id_b} -> bus_id_a < bus_id_b end)
       |> Enum.to_list()
     end
 
     def find_subsequent([{position_a, bus_id_a} | [{position_b, bus_id_b} | rest]]) do
       {timestamp, _product} =
         find_pair({position_a, bus_id_a, 1}, {position_b, bus_id_b, 1})
-        |> find_subsequent(rest)
+        |> find_subsequent(rest, Time.utc_now())
 
       timestamp
     end
 
-    def find_subsequent({t, product}, [{position_a, bus_id_a} | rest]) do
-      find_next({product, t, 1}, {position_a, bus_id_a, 1})
-      |> find_subsequent(rest)
+    def find_subsequent({t, product}, [{position_a, bus_id_a} | rest], prev) do
+      IO.puts("#{length(rest)}: #{t} in #{Time.diff(Time.utc_now(), prev, :second)}s")
+
+      find_next({product, t, 1}, {position_a, bus_id_a, trunc(t / bus_id_a)})
+      |> find_subsequent(rest, prev)
     end
 
-    def find_subsequent(t, []), do: t
+    def find_subsequent(t, [], _prev), do: t
 
     def find_pair({pos_a, id_a, factor_a}, {pos_b, id_b, factor_b}) do
       a = factor_a * id_a - pos_a
@@ -74,7 +76,7 @@ defmodule ShuttleSearch do
       end
     end
 
-    def find_next({product, timestamp, factor_a} = a_in, {pos, id, factor} = b_in) do
+    def find_next({product, timestamp, factor_a} = a_in, {pos, id, factor}) do
       a = timestamp + product * factor_a
       b = factor * id - pos
 
@@ -84,7 +86,10 @@ defmodule ShuttleSearch do
         if a > b do
           find_next(a_in, {pos, id, factor + 1})
         else
-          find_next({product, timestamp, factor_a + 1}, b_in)
+          find_next(
+            {product, timestamp, factor_a + 1},
+            {pos, id, trunc((factor_a + 1) * product / id)}
+          )
         end
       end
     end
