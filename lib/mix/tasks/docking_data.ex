@@ -11,7 +11,7 @@ defmodule Mix.Tasks.DockingData do
   mix docking_data (--part2)
   """
 
-  alias DockingData.{PartOne}
+  alias DockingData.{PartOne, PartTwo}
 
   def run([]) do
     "priv/input_14.txt"
@@ -19,7 +19,18 @@ defmodule Mix.Tasks.DockingData do
     |> Stream.map(&String.trim_trailing/1)
     |> Enum.to_list()
     |> PartOne.follow_program()
-    |> PartOne.sum()
+    |> DockingData.sum()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--part2"]) do
+    "priv/input_14.txt"
+    |> File.stream!()
+    |> Stream.map(&String.trim_trailing/1)
+    |> Enum.to_list()
+    |> PartTwo.follow_program()
+    |> DockingData.sum()
     |> Integer.to_string()
     |> Mix.shell().info()
   end
