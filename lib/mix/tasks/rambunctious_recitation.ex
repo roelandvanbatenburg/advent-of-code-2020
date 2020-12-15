@@ -8,14 +8,21 @@ defmodule Mix.Tasks.RambunctiousRecitation do
 
   ## Example
 
-  mix rambunctious_recitation
+  mix rambunctious_recitation (--part2)
   """
 
-  alias RambunctiousRecitation.{PartOne}
+  alias RambunctiousRecitation
 
   def run([]) do
     [1, 0, 18, 10, 19, 6]
-    |> PartOne.speak()
+    |> RambunctiousRecitation.speak()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--part2"]) do
+    [1, 0, 18, 10, 19, 6]
+    |> RambunctiousRecitation.speak(30_000_000)
     |> Integer.to_string()
     |> Mix.shell().info()
   end
