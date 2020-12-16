@@ -11,7 +11,7 @@ defmodule Mix.Tasks.TicketTranslation do
   mix ticket_translation (--part2)
   """
 
-  alias TicketTranslation.{PartOne}
+  alias TicketTranslation.{PartOne, PartTwo}
 
   def run([]) do
     File.stream!("priv/input_16.txt")
@@ -19,6 +19,23 @@ defmodule Mix.Tasks.TicketTranslation do
     |> Enum.to_list()
     |> TicketTranslation.parse_input()
     |> PartOne.error_rate()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--part2"]) do
+    res =
+      File.stream!("priv/input_16.txt")
+      |> Stream.map(&String.trim_trailing/1)
+      |> Enum.to_list()
+      |> TicketTranslation.parse_input()
+
+    {_rules, ticket, _nearby_tickets} = res
+
+    res
+    |> TicketTranslation.filter_invalid_tickets()
+    |> PartTwo.solve()
+    |> PartTwo.departure_product(ticket)
     |> Integer.to_string()
     |> Mix.shell().info()
   end
