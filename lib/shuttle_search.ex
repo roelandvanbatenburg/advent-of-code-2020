@@ -53,8 +53,6 @@ defmodule ShuttleSearch do
     end
 
     def find_subsequent({t, product}, [{position_a, bus_id_a} | rest], prev) do
-      IO.puts("#{length(rest)}: #{t} in #{Time.diff(Time.utc_now(), prev, :second)}s")
-
       find_next({product, t, 1}, {position_a, bus_id_a, trunc(t / bus_id_a)})
       |> find_subsequent(rest, prev)
     end

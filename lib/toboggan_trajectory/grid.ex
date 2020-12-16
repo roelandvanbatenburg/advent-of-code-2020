@@ -37,7 +37,6 @@ defmodule TobogganTrajectory.Grid do
     :tree ==
       grid
       |> Enum.at(y)
-      # |> IO.inspect()
       |> Enum.at(x)
   end
 end

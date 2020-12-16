@@ -36,7 +36,6 @@ defmodule EncodingError do
   end
 
   defp get_min_max(size, start, input, target) do
-    # IO.puts("inspecting #{start}..#{start + size}")
     set = Enum.slice(input, start..(start + size))
 
     if Enum.sum(set) == target do
