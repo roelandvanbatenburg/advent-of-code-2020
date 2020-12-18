@@ -1,5 +1,4 @@
 defmodule ConwayCubes do
-  # credo:disable-for-this-file Credo.Check.Refactor.Nesting
   @moduledoc """
   Help the elves
   """
@@ -16,16 +15,18 @@ defmodule ConwayCubes do
     y_max = length(input)
     x_max = String.length(List.first(input))
 
+    relevant_locations =
+      for y <- 0..(y_max - 1),
+          x <- 0..(x_max - 1),
+          do: {x, y}
+
     active_cubes =
-      0..(y_max - 1)
-      |> Enum.reduce(%{}, fn y, active_cubes ->
-        0..(x_max - 1)
-        |> Enum.reduce(active_cubes, fn x, acc ->
-          case input |> Enum.at(y) |> String.at(x) do
-            "." -> acc
-            "#" -> Map.put(acc, {x, y, 0, 0}, :active)
-          end
-        end)
+      relevant_locations
+      |> Enum.reduce(%{}, fn {x, y}, active_cubes ->
+        case input |> Enum.at(y) |> String.at(x) do
+          "." -> active_cubes
+          "#" -> Map.put(active_cubes, {x, y, 0, 0}, :active)
+        end
       end)
 
     {active_cubes, {{0, x_max - 1}, {0, y_max - 1}, {0, 0}, {0, 0}}}
@@ -48,16 +49,16 @@ defmodule ConwayCubes do
       grid_dimensions = next_grid_dimensions(prev_grid_dimensions)
       {{x_min, x_max}, {y_min, y_max}, {z_min, z_max}, _w} = grid_dimensions
 
+      relevant_cubes =
+        for z <- z_min..z_max,
+            y <- y_min..y_max,
+            x <- x_min..x_max,
+            do: {x, y, z, 0}
+
       active_cubes =
-        z_min..z_max
-        |> Enum.reduce(%{}, fn z, active_cubes ->
-          y_min..y_max
-          |> Enum.reduce(active_cubes, fn y, active_cubes ->
-            x_min..x_max
-            |> Enum.reduce(active_cubes, fn x, active_cubes ->
-              determine_state({x, y, z, 0}, active_cubes, prev_active_cubes)
-            end)
-          end)
+        relevant_cubes
+        |> Enum.reduce(%{}, fn position, active_cubes ->
+          determine_state(position, active_cubes, prev_active_cubes)
         end)
 
       {active_cubes, grid_dimensions}
@@ -85,17 +86,13 @@ defmodule ConwayCubes do
     end
 
     defp get_neighbours({x, y, z, _w}) do
-      (z - 1)..(z + 1)
-      |> Enum.reduce([], fn z, neighbours ->
-        (y - 1)..(y + 1)
-        |> Enum.reduce(neighbours, fn y, neighbours ->
-          (x - 1)..(x + 1)
-          |> Enum.reduce(neighbours, fn x, neighbours ->
-            [{x, y, z, 0} | neighbours]
-          end)
-        end)
-      end)
-      |> List.delete({x, y, z, 0})
+      neighbours_and_self =
+        for z <- (z - 1)..(z + 1),
+            y <- (y - 1)..(y + 1),
+            x <- (x - 1)..(x + 1),
+            do: {x, y, z, 0}
+
+      List.delete(neighbours_and_self, {x, y, z, 0})
     end
 
     defp count_active_neighbours(neighbours, prev_active_cubes) do
@@ -128,19 +125,17 @@ defmodule ConwayCubes do
       grid_dimensions = next_grid_dimensions(prev_grid_dimensions)
       {{x_min, x_max}, {y_min, y_max}, {z_min, z_max}, {w_min, w_max}} = grid_dimensions
 
+      relevant_cubes =
+        for z <- z_min..z_max,
+            y <- y_min..y_max,
+            x <- x_min..x_max,
+            w <- w_min..w_max,
+            do: {x, y, z, w}
+
       active_cubes =
-        z_min..z_max
-        |> Enum.reduce(%{}, fn z, active_cubes ->
-          y_min..y_max
-          |> Enum.reduce(active_cubes, fn y, active_cubes ->
-            x_min..x_max
-            |> Enum.reduce(active_cubes, fn x, active_cubes ->
-              w_min..w_max
-              |> Enum.reduce(active_cubes, fn w, active_cubes ->
-                determine_state({x, y, z, w}, active_cubes, prev_active_cubes)
-              end)
-            end)
-          end)
+        relevant_cubes
+        |> Enum.reduce(%{}, fn position, active_cubes ->
+          determine_state(position, active_cubes, prev_active_cubes)
         end)
 
       {active_cubes, grid_dimensions}
@@ -168,20 +163,14 @@ defmodule ConwayCubes do
     end
 
     defp get_neighbours({x, y, z, w}) do
-      (z - 1)..(z + 1)
-      |> Enum.reduce([], fn z, neighbours ->
-        (y - 1)..(y + 1)
-        |> Enum.reduce(neighbours, fn y, neighbours ->
-          (x - 1)..(x + 1)
-          |> Enum.reduce(neighbours, fn x, neighbours ->
-            (w - 1)..(w + 1)
-            |> Enum.reduce(neighbours, fn w, neighbours ->
-              [{x, y, z, w} | neighbours]
-            end)
-          end)
-        end)
-      end)
-      |> List.delete({x, y, z, w})
+      neighbours_and_self =
+        for z <- (z - 1)..(z + 1),
+            y <- (y - 1)..(y + 1),
+            x <- (x - 1)..(x + 1),
+            w <- (w - 1)..(w + 1),
+            do: {x, y, z, w}
+
+      List.delete(neighbours_and_self, {x, y, z, w})
     end
 
     defp count_active_neighbours(neighbours, prev_active_cubes) do
