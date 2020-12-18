@@ -11,4 +11,8 @@ defmodule OperationOrderTest do
     assert [13_632] ==
              ["((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"] |> OperationOrder.calculate()
   end
+
+  test "get the sum part 2" do
+    assert [46] = ["2 * 3 + (4 * 5)"] |> OperationOrder.calculate(%{"+" => 1, "*" => 0})
+  end
 end

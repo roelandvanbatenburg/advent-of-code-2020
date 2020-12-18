@@ -23,16 +23,16 @@ defmodule OperationOrder do
   end
 
   @spec calculate(list(String.t())) :: list(integer)
-  def calculate(input) do
+  def calculate(input, op_precedence \\ %{"+" => 1, "*" => 1}) do
     input
-    |> Enum.map(&calculate_line/1)
+    |> Enum.map(&calculate_line(&1, op_precedence))
   end
 
-  defp calculate_line(line) do
+  defp calculate_line(line, op_precedence) do
     line
     |> String.graphemes()
     |> tokenize([])
-    |> parse_tokens()
+    |> parse_tokens(op_precedence)
     |> interp()
   end
 
@@ -68,66 +68,60 @@ defmodule OperationOrder do
     tokenize(rest, [token | tokens])
   end
 
-  defp parse_tokens(token, op_stack \\ [], output_queue \\ [])
-  defp parse_tokens([], op_stack, output_queue), do: Enum.reverse(output_queue) ++ op_stack
+  defp parse_tokens(token, op_precedence, op_stack \\ [], output_queue \\ [])
 
-  defp parse_tokens([token | rest], op_stack, output_queue) do
+  defp parse_tokens([], _op_precedence, op_stack, output_queue),
+    do: Enum.reverse(output_queue) ++ op_stack
+
+  defp parse_tokens([token | rest], op_precedence, op_stack, output_queue) do
     case token.type do
-      :int -> handle_number(token, rest, op_stack, output_queue)
-      :op -> handle_op(token, rest, op_stack, output_queue)
-      :leftparen -> handle_left_paren(token, rest, op_stack, output_queue)
-      :rightparen -> handle_right_paren(token, rest, op_stack, output_queue)
+      :int -> handle_number(token, rest, op_stack, output_queue, op_precedence)
+      :op -> handle_op(token, rest, op_stack, output_queue, op_precedence)
+      :leftparen -> handle_left_paren(token, rest, op_stack, output_queue, op_precedence)
+      :rightparen -> handle_right_paren(token, rest, op_stack, output_queue, op_precedence)
     end
   end
 
-  defp handle_number(num_token, tokens, op_stack, output_queue) do
+  defp handle_number(num_token, tokens, op_stack, output_queue, op_precedence) do
     output_queue = [num_token | output_queue]
-    parse_tokens(tokens, op_stack, output_queue)
+    parse_tokens(tokens, op_precedence, op_stack, output_queue)
   end
 
-  @op_precedence %{
-    "+" => 1,
-    "*" => 1
-  }
-
-  defp handle_op(op_token, tokens, op_stack, output_queue) do
+  defp handle_op(op_token, tokens, op_stack, output_queue, op_precedence) do
     {moved_ops, op_stack} =
       Enum.split_while(op_stack, fn x ->
-        x.value != "(" && @op_precedence[x.value] >= @op_precedence[op_token.value]
+        x.value != "(" && op_precedence[x.value] >= op_precedence[op_token.value]
       end)
 
     output_queue = Enum.reverse(moved_ops) ++ output_queue
     op_stack = [op_token | op_stack]
-    parse_tokens(tokens, op_stack, output_queue)
+    parse_tokens(tokens, op_precedence, op_stack, output_queue)
   end
 
-  defp handle_left_paren(lparen_token, tokens, op_stack, output_queue) do
+  defp handle_left_paren(lparen_token, tokens, op_stack, output_queue, op_precedence) do
     op_stack = [lparen_token | op_stack]
-    parse_tokens(tokens, op_stack, output_queue)
+    parse_tokens(tokens, op_precedence, op_stack, output_queue)
   end
 
-  defp handle_right_paren(_rparen_token, tokens, op_stack, output_queue) do
+  defp handle_right_paren(_rparen_token, tokens, op_stack, output_queue, op_precedence) do
     {moved_ops, op_stack} = Enum.split_while(op_stack, fn x -> x.value != "(" end)
 
     output_queue = Enum.reverse(moved_ops) ++ output_queue
     [_ | op_stack] = op_stack
-    parse_tokens(tokens, op_stack, output_queue)
+    parse_tokens(tokens, op_precedence, op_stack, output_queue)
   end
 
   defp interp(tokens, stack \\ [])
+  defp interp([], [result | _stack]), do: result.value
 
   defp interp([token | rest], stack) do
     case token.type do
-      :op -> handle_op(token, rest, stack)
-      :int -> handle_number(token, rest, stack)
+      :op -> interp_op(token, rest, stack)
+      :int -> interp_number(token, rest, stack)
     end
   end
 
-  defp interp([], [result | _stack]) do
-    result.value
-  end
-
-  defp handle_op(op_token, tokens, stack) do
+  defp interp_op(op_token, tokens, stack) do
     [op_2_token | stack] = stack
     [op_1_token | stack] = stack
     op_1 = op_1_token.value
@@ -143,7 +137,7 @@ defmodule OperationOrder do
     interp(tokens, stack)
   end
 
-  defp handle_number(num_token, tokens, stack) do
+  defp interp_number(num_token, tokens, stack) do
     stack = [num_token | stack]
     interp(tokens, stack)
   end

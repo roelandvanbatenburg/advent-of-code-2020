@@ -27,7 +27,7 @@ defmodule Mix.Tasks.OperationOrder do
     File.stream!("priv/input_18.txt")
     |> Stream.map(&String.trim_trailing/1)
     |> Enum.to_list()
-    |> OperationOrder.calculate()
+    |> OperationOrder.calculate(%{"+" => 1, "*" => 0})
     |> Enum.sum()
     |> Integer.to_string()
     |> Mix.shell().info()
