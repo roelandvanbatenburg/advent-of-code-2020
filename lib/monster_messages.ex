@@ -39,14 +39,21 @@ defmodule MonsterMessages do
 
   defp regex_from_alternation("42 | 42 8", rules) do
     pattern = rule_to_regex(rules, "42")
-    "(?<eight>#{pattern}+)"
+    "(#{pattern}+)"
   end
 
   defp regex_from_alternation("42 31 | 42 11 31", rules) do
     forty_two = rule_to_regex(rules, "42")
     thirty_one = rule_to_regex(rules, "31")
 
-    "((?<eleven1>#{forty_two})+(?<eleven2>#{thirty_one})+)"
+    opts =
+      1..4
+      |> Enum.map(fn i ->
+        "(?<eleven_#{i}>#{String.duplicate(forty_two, i) <> String.duplicate(thirty_one, i)})"
+      end)
+      |> Enum.join("|")
+
+    "(#{opts})"
   end
 
   defp regex_from_alternation(rule, rules) do
@@ -88,20 +95,17 @@ defmodule MonsterMessages do
         |> Map.put("8", "42 | 42 8")
         |> Map.put("11", "42 31 | 42 11 31")
 
-      regex = Regex.compile!("^#{MonsterMessages.rule_to_regex(rules)}$")
+      regex =
+        "^#{MonsterMessages.rule_to_regex(rules)}$"
+        |> Regex.compile!()
 
       Enum.reduce(messages, 0, fn message, acc ->
-        if Regex.match?(regex, message) && valid_eleven?(regex, message) do
+        if Regex.match?(regex, message) do
           acc + 1
         else
           acc
         end
       end)
-    end
-
-    defp valid_eleven?(regex, message) do
-      names = Regex.named_captures(regex, message)
-      String.length(Map.get(names, "eleven1")) == String.length(Map.get(names, "eleven2"))
     end
   end
 end
