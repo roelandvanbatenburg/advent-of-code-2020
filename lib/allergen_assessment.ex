@@ -86,5 +86,43 @@ defmodule AllergenAssessment do
     @moduledoc """
     Second puzzle
     """
+
+    def canonical_dangerous_ingredient_list({food_info, _ingredients, allergens}) do
+      AllergenAssessment.map_allergens(food_info, allergens)
+      |> solve()
+    end
+
+    defp solve(mapping) do
+      if solved?(mapping) do
+        mapping
+        |> Enum.to_list()
+        |> Enum.sort(fn {allergen_a, _}, {allergen_b, _} -> allergen_a < allergen_b end)
+        |> Enum.map(fn {_allergen, ingredient} -> List.last(ingredient) end)
+        |> Enum.join(",")
+      else
+        # only one ingredient per mapping
+        mapped_ingredients =
+          mapping
+          |> Enum.filter(fn {_allergen, ingredient} -> length(ingredient) == 1 end)
+          |> Enum.reduce([], fn {_allergen, ingredient}, acc -> [List.first(ingredient) | acc] end)
+
+        mapping
+        |> Enum.map(&filter_when_necessary(&1, mapped_ingredients))
+        |> solve()
+      end
+    end
+
+    defp solved?(mapping) do
+      mapping
+      |> Enum.all?(fn {_allergen, ingredient} -> length(ingredient) == 1 end)
+    end
+
+    defp filter_when_necessary({allergen, ingredient} = original, mapped_ingredients) do
+      if length(ingredient) == 1 do
+        original
+      else
+        {allergen, Enum.filter(ingredient, fn i -> !Enum.member?(mapped_ingredients, i) end)}
+      end
+    end
   end
 end
