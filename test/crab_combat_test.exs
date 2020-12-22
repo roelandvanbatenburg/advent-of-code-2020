@@ -1,7 +1,7 @@
 defmodule CrabCombatTest do
   use ExUnit.Case
 
-  alias CrabCombat.{PartOne}
+  alias CrabCombat.{PartOne, PartTwo}
 
   setup _context do
     {:ok,
@@ -27,6 +27,31 @@ defmodule CrabCombatTest do
              input
              |> CrabCombat.parse()
              |> PartOne.play()
+             |> CrabCombat.score()
+  end
+
+  test "play recursive combat", %{input: input} do
+    assert 291 ==
+             input
+             |> CrabCombat.parse()
+             |> PartTwo.play()
+             |> CrabCombat.score()
+  end
+
+  test "do not loop" do
+    assert 105 ==
+             """
+                   Player 1:
+             43
+             19
+
+             Player 2:
+             2
+             29
+             14
+             """
+             |> CrabCombat.parse()
+             |> PartTwo.play()
              |> CrabCombat.score()
   end
 end
