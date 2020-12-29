@@ -11,6 +11,10 @@ mix local.hex
 mix deps.get
 ```
 
+## Note
+
+I did not solve part two of day 20 and 22 (although the test succeed). I hope to come back to them some later time (but probably will not).
+
 ## Usage
 
 - Tests: `mix check`
@@ -26,3 +30,4 @@ mix deps.get
 - Day 10: `mix adapter_array` (`--count` for part 2)
 - Day 11: `mix seating_systems` (`--part2` for part 2)
 - Day 12: `mix encoding_error` (`--part2` for part 2)
+- etc.
