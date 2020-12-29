@@ -11,7 +11,7 @@ defmodule Mix.Tasks.JurassicJigsaw do
   mix jurassic_jigsaw (--part2)
   """
 
-  alias JurassicJigsaw.{PartOne}
+  alias JurassicJigsaw.{Grid, PartOne, PartTwo}
 
   def run([]) do
     File.stream!("priv/input_20.txt")
@@ -20,8 +20,21 @@ defmodule Mix.Tasks.JurassicJigsaw do
     |> Enum.join("\n")
     |> String.trim()
     |> JurassicJigsaw.parse()
-    |> PartOne.find_corners()
-    |> PartOne.id_product()
+    |> Grid.build_grid()
+    |> PartOne.multiply_corners()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--part2"]) do
+    File.stream!("priv/input_20.txt")
+    |> Stream.map(&String.trim_trailing/1)
+    |> Enum.to_list()
+    |> Enum.join("\n")
+    |> String.trim()
+    |> JurassicJigsaw.parse()
+    |> Grid.build_grid()
+    |> PartTwo.roughness()
     |> Integer.to_string()
     |> Mix.shell().info()
   end

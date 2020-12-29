@@ -5,106 +5,26 @@ defmodule JurassicJigsaw do
 
   alias JurassicJigsaw.Tile
 
-  @spec parse(String.t()) :: list(Tile.t())
   def parse(input) do
     input
+    |> String.trim()
     |> String.split("\n\n")
-    |> Enum.map(&parse_tile/1)
-  end
-
-  defp parse_tile(input) do
-    [id_line | tile_input] = String.split(input, "\n")
-    Tile.create(id_line, tile_input)
-  end
-
-  def position_and_id(placed_tiles) do
-    placed_tiles
-    |> Enum.map(fn {pos, tile} -> {pos, tile.id} end)
-  end
-
-  defmodule Tile do
-    @moduledoc "tile"
-    @enforce_keys [:corners, :id, :tile]
-    defstruct @enforce_keys
-
-    # (# or .)
-    @type value :: :filled | :empty
-    @type line :: list()
-    @type t() :: %__MODULE__{
-            corners: list(list()),
-            tile: list(list()),
-            id: integer
-          }
-
-    @spec create(String.t(), list(String.t())) :: t()
-    def create(id_line, tile) do
-      %__MODULE__{
-        id: String.to_integer(String.slice(id_line, 5..8)),
-        tile: tile,
-        corners: get_corners(tile)
-      }
-    end
-
-    @spec is_corner?(Tile.t(), list(Tile.t())) :: boolean
-    def is_corner?(tile, tiles) do
-      tiles
-      |> Enum.reduce(0, fn target, neighbour_cnt ->
-        if target.id == tile.id do
-          neighbour_cnt
-        else
-          if Enum.any?(target.corners, fn corner -> Enum.member?(tile.corners, corner) end) do
-            neighbour_cnt + 1
-          else
-            neighbour_cnt
-          end
-        end
-      end) === 2
-    end
-
-    defp get_corners(tile) do
-      [
-        parse_row(List.first(tile)),
-        parse_row(List.last(tile)),
-        parse_column(tile, 0),
-        parse_column(tile, 9),
-        parse_row(List.first(tile)) |> Enum.reverse(),
-        parse_row(List.last(tile)) |> Enum.reverse(),
-        parse_column(tile, 0) |> Enum.reverse(),
-        parse_column(tile, 9) |> Enum.reverse()
-      ]
-    end
-
-    defp parse_row(line) do
-      line
-      |> String.split("")
-      |> Enum.filter(fn e -> e != "" end)
-      |> Enum.map(&parse_token/1)
-    end
-
-    defp parse_column(tile, x) do
-      tile
-      |> Enum.map(&String.at(&1, x))
-      |> Enum.map(&parse_token/1)
-    end
-
-    defp parse_token("#"), do: :filled
-    defp parse_token("."), do: :empty
+    |> Enum.map(&Tile.parse_tile/1)
+    |> Map.new()
   end
 
   defmodule PartOne do
     @moduledoc """
     First puzzle
     """
-    @spec find_corners(list(Tile.t())) :: list(Tile.t())
-    def find_corners(tiles) do
-      tiles
-      |> Enum.filter(&Tile.is_corner?(&1, tiles))
-    end
+    def multiply_corners(grid) do
+      {{min_x, _}, {max_x, _}} = grid |> Map.keys() |> Enum.min_max_by(&elem(&1, 0))
+      {{_, min_y}, {_, max_y}} = grid |> Map.keys() |> Enum.min_max_by(&elem(&1, 1))
 
-    @spec id_product(list(Tile.t())) :: integer
-    def id_product(tiles) do
-      tiles
-      |> Enum.reduce(1, fn tile, acc -> acc * tile.id end)
+      [{min_x, min_y}, {min_x, max_y}, {max_x, min_y}, {max_x, max_y}]
+      |> Enum.map(&Map.fetch!(grid, &1))
+      |> Enum.map(&elem(&1, 0))
+      |> Enum.reduce(1, &(&1 * &2))
     end
   end
 
@@ -113,50 +33,78 @@ defmodule JurassicJigsaw do
     Second puzzle
     """
 
-    @spec solve(list(Tile.t())) :: map()
-    def solve(tiles) do
-      corner_piece = Enum.find(tiles, &Tile.is_corner?(&1, tiles))
-      tiles = List.delete(tiles, corner_piece)
-      positions = Map.put(%{}, {0, 0}, corner_piece)
+    @monster_size 15
+    @monster [~r/..................#./, ~r/#....##....##....###/, ~r/.#..#..#..#..#..#.../]
 
-      solve(tiles, positions)
+    def roughness(grid) do
+      grid
+      |> to_picture()
+      |> Enum.map(&Enum.join/1)
+      |> Enum.join("\n")
+      |> find_all()
+      |> count_without_monsters()
     end
 
-    defp solve([], positions), do: positions
-
-    defp solve(tiles, positions) do
-      {location, placed_tile, original_tile} =
-        Enum.find(tiles, fn tile ->
-          case match_orientation(tile, positions) do
-            nil -> nil
-          end
-        end)
-
-      tiles = List.delete(tiles, original_tile)
-      positions = Map.put(positions, location, placed_tile)
-
-      solve(tiles, positions)
+    defp count_without_monsters({str, monsters}) do
+      monsters = length(monsters)
+      pounds = str |> String.graphemes() |> Enum.count(&(&1 == "#"))
+      pounds - monsters * @monster_size
     end
 
-    defp match_orientation(tile, positions) do
-      possible_positions(positions)
-      |> Enum.find_value(fn position -> place_tile(position, tile, positions) end)
+    defp find_all(str) do
+      str
+      |> to_list()
+      |> Tile.orientations()
+      |> Enum.map(&to_text/1)
+      |> Enum.map(&{&1, find(&1)})
+      |> Enum.filter(&(elem(&1, 1) != []))
+      |> hd()
     end
 
-    defp place_tile(position, tile, _positions) do
-      # todo: return {location, rotated/flipped tile, orginal tile} if it matched
-      # nil if it doesn't fit here
-      {position, tile, tile}
+    defp find(str) do
+      str
+      |> String.split("\n")
+      |> Enum.chunk_every(3, 1, :discard)
+      |> Enum.filter(fn s ->
+        s
+        |> Enum.zip(@monster)
+        |> Enum.map(fn {s, r} -> Regex.match?(r, s) end)
+        |> Enum.all?()
+      end)
     end
 
-    defp possible_positions(positions) do
-      filled = Map.keys(positions)
+    defp to_list(str), do: str |> String.split("\n") |> Enum.map(&String.graphemes/1)
+    defp to_text(lst), do: lst |> Enum.map(&Enum.join/1) |> Enum.join("\n")
 
-      # todo: +/- x/y for each
-      filled
-      |> Enum.flat_map(fn position -> [position] end)
-      |> Enum.uniq()
-      |> Enum.filter(fn position -> Enum.member?(filled, position) end)
+    defp to_picture(grid) do
+      grid
+      |> Enum.map(fn {k, {_, v}} -> {k, v} end)
+      |> Enum.map(&drop_edges/1)
+      |> Enum.group_by(fn {{_, y}, _} -> y end)
+      |> Enum.map(&join_row/1)
+      |> Enum.sort_by(fn {k, _} -> k end, :desc)
+      |> Enum.map(&elem(&1, 1))
+      |> Enum.concat()
+    end
+
+    defp drop_edges({k, v}), do: {k, drop_edges(v)}
+
+    defp drop_edges(tile) when is_list(tile) do
+      tile |> tl() |> List.delete_at(-1) |> Enum.map(&(&1 |> tl() |> List.delete_at(-1)))
+    end
+
+    defp join_row({k, lst}) do
+      v =
+        lst
+        |> Enum.sort_by(fn {{x, _}, _} -> x end)
+        |> Enum.map(fn {_, tile} -> tile end)
+        |> join_row()
+
+      {k, v}
+    end
+
+    defp join_row(tiles) do
+      tiles |> Enum.zip() |> Enum.map(&Tuple.to_list/1) |> Enum.map(&Enum.concat/1)
     end
   end
 end

@@ -1,15 +1,15 @@
 defmodule JurassicJigsawTest do
   use ExUnit.Case
 
-  alias JurassicJigsaw.{PartOne, PartTwo}
+  alias JurassicJigsaw.{Grid, PartOne, PartTwo}
 
   test "part one", %{input: input} do
     assert 20_899_048_083_289 ==
              input
              |> String.trim()
              |> JurassicJigsaw.parse()
-             |> PartOne.find_corners()
-             |> PartOne.id_product()
+             |> Grid.build_grid()
+             |> PartOne.multiply_corners()
   end
 
   test "part two", %{input: input} do
@@ -17,7 +17,8 @@ defmodule JurassicJigsawTest do
              input
              |> String.trim()
              |> JurassicJigsaw.parse()
-             |> PartTwo.solve()
+             |> Grid.build_grid()
+             |> PartTwo.roughness()
   end
 
   setup _context do
