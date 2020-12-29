@@ -8,7 +8,7 @@ defmodule Mix.Tasks.LobbyLayout do
 
   ## Example
 
-  mix lobby_layout
+  mix lobby_layout (--part2)
   """
 
   def run([]) do
@@ -16,6 +16,17 @@ defmodule Mix.Tasks.LobbyLayout do
     |> Stream.map(&String.trim_trailing/1)
     |> Enum.to_list()
     |> LobbyLayout.place_tiles()
+    |> LobbyLayout.count_black_tiles()
+    |> Integer.to_string()
+    |> Mix.shell().info()
+  end
+
+  def run(["--part2"]) do
+    File.stream!("priv/input_24.txt")
+    |> Stream.map(&String.trim_trailing/1)
+    |> Enum.to_list()
+    |> LobbyLayout.place_tiles()
+    |> LobbyLayout.flip()
     |> LobbyLayout.count_black_tiles()
     |> Integer.to_string()
     |> Mix.shell().info()
